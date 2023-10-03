@@ -24,18 +24,18 @@ const userSchema = new mongoose.Schema(
     },
 
     role: {
-      type: Number,
-      default: 0, // 0 = user, 1 = admin
+      type: String,
+      default: "user",
     },
 
     phone: {
-      type: Number,
+      type: String,
       required: true,
     },
 
     telegram: {
       type: String,
-      required: true,
+      default: "",
     },
 
     products: [
