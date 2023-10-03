@@ -1,7 +1,21 @@
 import Users from "../models/user.model.js";
 
 export const userController = {
-  getUser: async (req, res) => {
+  register: async (req, res) => {
+    try {
+    } catch (error) {
+      res.status(500).json({ message: error.message });
+    }
+  },
+
+  login: async (req, res) => {
+    try {
+    } catch (error) {
+      res.status(500).json({ message: error.message });
+    }
+  },
+
+  getUsers: async (req, res) => {
     try {
       const users = await Users.find();
       res.json(users);
@@ -10,8 +24,10 @@ export const userController = {
     }
   },
 
-  registerUser: async (req, res) => {
+  getUser: async (req, res) => {
     try {
+      const users = await Users.findById();
+      res.json(users);
     } catch (error) {
       res.status(500).json({ message: error.message });
     }
@@ -25,13 +41,6 @@ export const userController = {
   },
 
   deleteUser: async (req, res) => {
-    try {
-    } catch (error) {
-      res.status(500).json({ message: error.message });
-    }
-  },
-
-  login: async (req, res) => {
     try {
     } catch (error) {
       res.status(500).json({ message: error.message });
