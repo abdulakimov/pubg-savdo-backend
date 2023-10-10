@@ -33,7 +33,8 @@ mongoose
   .then(() => console.log("MongoDB connected..."))
   .catch((err) => console.log(err));
 
-// Listen on port 5000 or PORT env variable
-const PORT = process.env.PORT || 5000;
+// Listen on port 6000 or PORT env variable
+const PORT = process.env.PORT || 6000;
 
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
+

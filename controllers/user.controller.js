@@ -66,6 +66,7 @@ export const userController = {
 
       // Create token
       const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET);
+      console.log(token);
 
       // Send token in HTTP-only cookie
       res.cookie("token", token, { httpOnly: true });
@@ -79,7 +80,7 @@ export const userController = {
     }
   },
 
-  getUsers: async (req, res) => {
+  getUsers: async (_, res) => {
     try {
       const users = await Users.find();
 
