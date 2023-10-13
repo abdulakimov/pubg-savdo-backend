@@ -7,8 +7,8 @@ const router = Router();
 router.get("/product/:id", checkId, productController.getProductOnly);
 router.get("/products", productController.getProductAll)
 router.post("/product", auth, productController.createProduct);
-router.patch("/product/:id", checkId, productController.updateProduct);
-router.delete("/product/:id", checkId, productController.deleteProduct);
+router.patch("/product/:id", auth, checkId, productController.updateProduct);
+router.delete("/product/:id", auth, checkId, productController.deleteProduct);
 
 export default router;
  

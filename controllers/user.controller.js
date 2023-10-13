@@ -5,11 +5,11 @@ import jwt from "jsonwebtoken";
 export const userController = {
   register: async (req, res) => {
     try {
-      const { name, email, password, phone } = req.body;
+      const { username, password, email, role, phone, telegram } = req.body;
 
       // Validation
-      if (!name || !email || !password || !phone)
-        return res.status(400).json({ message: "Please fill all fields." });
+      if (!username || !email || !password || !phone)
+        return res.status(400).json({ message: "Fill all fields." });
 
       if (password.length < 6)
         return res
@@ -17,11 +17,12 @@ export const userController = {
           .json({ message: "Password must be at least 6 characters." });
 
       // Check for existing user
-      const existingUser = await Users.findOne({ email: email });
-      if (existingUser)
+      const existingUserEmail = await Users.findOne({ email: email });
+      const existingUserName = await Users.findOne({ username: username });
+      if (existingUserEmail || existingUserName)
         return res
           .status(400)
-          .json({ message: "An account with this email already exists." });
+          .json({ message: "An account with this email or username already exists." });
 
       // Hash password
       const salt = await bcrypt.genSalt();
@@ -29,10 +30,12 @@ export const userController = {
 
       // Create new user
       const newUser = new Users({
-        name,
-        email,
+        username,
         password: passwordHash,
+        email,
+        role,
         phone,
+        telegram,
       });
 
       // Save user to database
@@ -46,14 +49,14 @@ export const userController = {
 
   login: async (req, res) => {
     try {
-      const { email, password } = req.body;
+      const { username, password } = req.body;
 
       // Validate
-      if (!email || !password)
-        return res.status(400).json({ message: "Please fill all fields." });
+      if (!username || !password)
+        return res.status(400).json({ message: "Fill all fields." });
 
       // Check for existing user
-      const user = await Users.findOne({ email: email });
+      const user = await Users.findOne({ username: username });
       if (!user)
         return res
           .status(400)
@@ -66,14 +69,12 @@ export const userController = {
 
       // Create token
       const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET);
-      console.log(token);
 
       // Send token in HTTP-only cookie
       res.cookie("token", token, { httpOnly: true });
 
       res.status(200).json({
         token,
-        message: "Logged in successfully",
       });
     } catch (error) {
       res.status(500).json({ message: error.message });
@@ -89,12 +90,12 @@ export const userController = {
       const filteredUsers = users.map((user) => {
         return {
           id: user._id,
-          name: user.name,
+          username: user.username,
           email: user.email,
           role: user.role,
           phone: user.phone,
-          products: user.products,
           telegram: user.telegram,
+          products: user.products,
         };
       });
 
@@ -115,12 +116,12 @@ export const userController = {
       // Return user except the password and createdAt/updatedAt
       const filteredUser = {
         id: user._id,
-        name: user.name,
+        username: user.username,
         email: user.email,
         role: user.role,
         phone: user.phone,
-        products: user.products,
         telegram: user.telegram,
+        products: user.products,
       };
 
       res.status(200).json(filteredUser);
@@ -132,18 +133,25 @@ export const userController = {
   updateUser: async (req, res) => {
     try {
       const user = await Users.findById(req.params.id);
+      const checkUserName = await Users.findOne({ username: req.body.username });
 
       // Check if user exists
       if (!user)
         return res.status(400).json({ message: "User does not exist." });
 
+      // Check if username is already taken
+      if (checkUserName && checkUserName._id != req.params.id)
+        return res
+          .status(400)
+          .json({ message: "An account with this username already exists." });
+
       // Update user
-      user.name = req.body.name || user.name;
+      user.username = req.body.username || user.username;
       user.phone = req.body.phone || user.phone;
       user.telegram = req.body.telegram || user.telegram;
 
       // Save updated user
-      const updatedUser = await user.save();
+      await user.save();
 
       res.status(200).json({ message: "User updated successfully" });
     } catch (error) {
